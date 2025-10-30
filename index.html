@@ -1,1 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-R">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protótipo - Gestão de Doações FMP</title>
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --cor-primaria: #005a9c; /* Azul FMP (exemplo) */
+            --cor-secundaria: #673ab7; /* Roxo (dos seus wireframes) */
+            --cor-texto: #333;
+            --cor-fundo: #f4f7f6;
+            --cor-card: #ffffff;
+            --sombra: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+        }
+
+        .page {
+            display: none; /* Escondido por padrão */
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .page.active {
+            display: block; /* Mostra a página ativa */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* --- Componentes --- */
+        .card {
+            background-color: var(--cor-card);
+            border-radius: 8px;
+            box-shadow: var(--sombra);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--cor-primaria);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* --- Página de Login (Baseado no RF01) --- */
+        #login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--cor-primaria);
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 90%;
+            padding: 2.5rem;
+            background-color: var(--cor-card);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: var(--cor-primaria);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .login-links {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .login-links a {
+            color: var(--cor-primaria);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        /* --- Layout Principal (Header + Navegação) --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: var(--cor-card);
+            box-shadow: var(--sombra);
+        }
+
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--cor-primaria);
+        }
+
+        .header .profile-icon {
+            font-size: 1.8rem; /* Apenas um ícone de exemplo */
+        }
+
+        /* Navegação Desktop */
+        .desktop-nav {
+            display: none; /* Escondido em mobile */
+            background-color: var(--cor-card);
+            padding: 0 1rem;
+            box-shadow: var(--sombra);
+        }
+
+        .desktop-nav ul {
+            display: flex;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .desktop-nav li a {
+            display: block;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: var(--cor-texto);
+            font-weight: 600;
+        }
+
+        .desktop-nav li a.active,
+        .desktop-nav li a:hover {
+            color: var(--cor-primaria);
+            border-bottom: 3px solid var(--cor-primaria);
+        }
+
+        /* Navegação Mobile (Baseado no esboço 1000081768.png) */
+        .mobile-nav {
+            display: flex; /* Visível em mobile */
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--cor-card);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+        }
+
+        .mobile-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+
+        .mobile-nav a .icon {
+            font-size: 1.5rem; /* Placeholder para ícone */
+            margin-bottom: 0.25rem;
+        }
+
+        .mobile-nav a.active {
+            color: var(--cor-primaria);
+        }
+        
+        /* Garante que o conteúdo não fique embaixo da nav mobile */
+        main .container {
+            padding-bottom: 80px; 
+        }
+
+        /* --- Painel ALUNO (Baseado nos esboços 1768, 1769) --- */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile-first: empilhado */
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Campanhas Ativas */
+        .campanha-card {
+            background-color: var(--cor-secundaria);
+            color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--sombra);
+            margin-bottom: 1rem;
+        }
+        .campanha-card h3 {
+            margin-bottom: 0.5rem;
+        }
+        .campanha-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .campanha-status {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        /* Itens Urgentes */
+        .urgente-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .urgente-item:last-child {
+            border-bottom: none;
+        }
+        .urgente-item .item-nome {
+            font-weight: 600;
+        }
+        .urgente-item .item-qtd {
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        /* --- Painel COPER (Baseado no esboço 1767) --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas */
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--cor-card);
+            border-radius: 8px;
+            box-shadow: var(--sombra);
+            padding: 1.5rem;
+        }
+        .stat-card .stat-title {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--cor-secundaria);
+        }
+        .stat-card .stat-desc {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 1rem;
+        }
+
+        /* --- REGRAS DE RESPONSIVIDADE (RNF02) --- */
+        @media (min-width: 768px) {
+            /* Esconde nav mobile e mostra nav desktop */
+            .mobile-nav {
+                display: none;
+            }
+            
+            main .container {
+                padding-bottom: 1.5rem; /* Reseta padding */
+            }
+
+            .desktop-nav {
+                display: block;
+            }
+
+            /* Layout do Aluno (Lado a lado, como no esboço 1769) */
+            .dashboard-layout {
+                grid-template-columns: 2fr 1fr; /* 2/3 para campanhas, 1/3 para itens */
+            }
+
+            /* Layout da COPER */
+            .stats-grid {
+                grid-template-columns: 1fr 1fr 1fr; /* 3 colunas em desktop, por ex. */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main id="login-page" class="page active">
+        <div class="login-container">
+            <h1>Gestão de Doações</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail Institucional</label>
+                    <input type="email" id="email" placeholder="seu.email@aluno.fmpsc.edu.br" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="********" required>
+                </div>
+                <button type="submit" class="btn btn-full" id="login-button">Entrar</button>
+                <div class="login-links">
+                    <a href="#">Recuperar Senha</a> (RF02)
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <main id="aluno-dashboard" class="page">
+        <header class="header">
+            <div class="logo">FMP</div>
+            <div class="profile-icon">👤</div>
+        </header>
+
+        <nav class="desktop-nav">
+            <ul>
+                <li><a href="#" class="active">Início</a></li>
+                <li><a href="#">Minhas Doações</a></li>
+                <li><a href="#">Comprovantes</a></li>
+                <li><a href="#">Perfil</a></li>
+            </ul>
+        </nav>
+
+        <div class="container">
+            <div class="dashboard-layout">
+                <section id="campanhas-ativas">
+                    <h2 class="section-title">Campanhas Ativas</h2>
+                    
+                    <div class="campanha-card">
+                        <h3>Campanha do Agasalho 2025</h3>
+                        <p>Ajude quem mais precisa neste inverno. Estamos arrecadando casacos, meias e cobertores.</p>
+                        <span class="campanha-status">Ativa até 30/10</span>
+                    </div>
+
+                    <div class="campanha-card" style="background-color: #00796b;">
+                        <h3>Arrecadação de Alimentos</h3>
+                        <p>Doações de alimentos não perecíveis para a instituição "Lar do Bem".</p>
+                        <span class="campanha-status">Ativa até 15/11</span>
+                    </div>
+                </section>
+
+                <section id="itens-urgentes" class="card">
+                    <h2 class="section-title">Itens Urgentes</h2>
+                    
+                    <div class="urgente-item">
+                        <span class="item-nome">Cobertores</span>
+                        <span class="item-qtd">25 unidades</span>
+                    </div>
+                    <div class="urgente-item">
+                        <span class="item-nome">Leite (Caixa)</span>
+                        <span class="item-qtd">80 unidades</span>
+                    </div>
+                    <div class="urgente-item">
+                        <span class="item-nome">Fralda Geriátrica G</span>
+                        <span class="item-qtd">40 pacotes</span>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <nav class="mobile-nav" id="aluno-mobile-nav">
+            <a href="#" class="active">
+                <span class="icon">🏠</span>
+                <span>Início</span>
+            </a>
+            <a href="#">
+                <span class="icon">🎁</span>
+                <span>Doações</span>
+            </a>
+            <a href="#">
+                <span class="icon">📄</span>
+                <span>Histórico</span>
+            </a>
+            <a href="#">
+                <span class="icon">👤</span>
+                <span>Perfil</span>
+            </a>
+        </nav>
+    </main>
+
+    <main id="coper-dashboard" class="page">
+        <header class="header">
+            <div class="logo">FMP (COPER)</div>
+            <div class="profile-icon">⚙️</div>
+        </header>
+
+        <nav class="desktop-nav">
+            <ul>
+                <li><a href="#" class="active">Dashboard</a></li>
+                <li><a href="#">Validar Doações</a></li>
+                <li><a href="#">Campanhas</a></li>
+                <li><a href="#">Relatórios</a></li>
+                <li><a href="#">Usuários</a></li>
+            </ul>
+        </nav>
+
+        <div class="container">
+            <h2 class="section-title">Visão Geral</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Doações Pendentes (RF06)</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-desc">Aguardando sua validação</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Arrecadado (Campanha)</div>
+                    <div class="stat-value">342 kg</div>
+                    <div class="stat-desc">Campanha de Alimentos Ativa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Alunos Participantes</div>
+                    <div class="stat-value">58</div>
+                    <div class="stat-desc">No último semestre</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h2 class="section-title">Ações Rápidas</h2>
+                <a href="#" class="btn">Registrar Nova Doação (UC02)</a>
+                <a href="#" class="btn" style="background-color: var(--cor-secundaria);">Validar Pendentes (UC03)</a>
+            </div>
+        </div>
+
+        <nav class="mobile-nav" id="coper-mobile-nav">
+            <a href="#" class="active">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="#">
+                <span class="icon">✅</span>
+                <span>Validar</span>
+            </a>
+            <a href="#">
+                <span class="icon">📣</span>
+                <span>Campanhas</span>
+            </a>
+            <a href="#">
+                <span class="icon">📈</span>
+                <span>Relatórios</span>
+            </a>
+        </nav>
+    </main>
+
+    <script>
+        // Adiciona o "cérebro" para simular o login e trocar de página
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const loginButton = document.getElementById('login-button');
+            const emailInput = document.getElementById('email');
+            
+            const loginPage = document.getElementById('login-page');
+            const alunoDashboard = document.getElementById('aluno-dashboard');
+            const coperDashboard = document.getElementById('coper-dashboard');
+
+            if (loginButton) {
+                loginButton.addEventListener('click', (e) => {
+                    e.preventDefault(); // Impede o envio real do formulário
+                    
+                    const email = emailInput.value.toLowerCase();
+
+                    // Lógica de simulação de login (Baseado no RF01)
+                    if (email.includes('@aluno.fmpsc.edu.br')) {
+                        // É Aluno
+                        showPage('aluno-dashboard');
+                    } else if (email.includes('@fmp') || email.includes('coper')) {
+                        // É COPER/Admin
+                        showPage('coper-dashboard');
+                    } else if (email === 'aluno') {
+                        // Atalho para teste
+                        showPage('aluno-dashboard');
+                    } else if (email === 'coper') {
+                         // Atalho para teste
+                         showPage('coper-dashboard');
+                    } else {
+                        alert('E-mail não reconhecido. Use "aluno" ou "coper" para testar.');
+                    }
+                });
+            }
+
+            // Função para trocar de página
+            function showPage(pageId) {
+                // Esconde todas as páginas
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Mostra a página desejada
+                const pageToShow = document.getElementById(pageId);
+                if (pageToShow) {
+                    pageToShow.classList.add('active');
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
